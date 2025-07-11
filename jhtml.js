@@ -351,17 +351,25 @@
         },
         initEditor: function (options) {
             //basic validation - Server side sanitization is present
-            function stripDangerousHtml(input) {
-                return input
-                    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '') // remove script tags
-                    .replace(/on\w+="[^"]*"/gi, '')                      // remove inline event handlers
-                    .replace(/javascript:/gi, '')                        // remove js: urls
-                }
+            function shallowSanitize(input) {
+  if (typeof input !== 'string') return '';
+
+  // Remove `<script>` blocks
+  input = input.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '');
+
+  // Remove inline event handlers like `onclick="..."`, `onerror=...`
+  input = input.replace(/\s*on\w+\s*=\s*(['"]).*?\1/gi, '');
+
+  // Remove `javascript:` URIs
+  input = input.replace(/javascript:/gi, '');
+
+  return input;
+}
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
-                edit.open();
-                edit.write(stripDangerousHtml(this.textarea.val()));
-                edit.close();
+            edit.open();
+            edit.write(shallowSanitize(this.textarea.val()));
+            edit.close();
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
