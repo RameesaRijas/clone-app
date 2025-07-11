@@ -351,15 +351,17 @@
         },
         initEditor: function (options) {
             //basic validation - Server side sanitization is present
-             const blocked = /<\/?(script|iframe|object|embed|meta|base)[\s>]/i;
+            function stripDangerousHtml(input) {
+                return input
+                    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '') // remove script tags
+                    .replace(/on\w+="[^"]*"/gi, '')                      // remove inline event handlers
+                    .replace(/javascript:/gi, '')                        // remove js: urls
+                }
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
-            const html = this.textarea.val() || this.textarea.html() || "<p id='placeholder'>Type here...</p>";
-            if (!blocked.test(html)) {
                 edit.open();
-                edit.write(html);
+                edit.write(stripDangerousHtml(this.textarea.val()));
                 edit.close();
-            }
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
