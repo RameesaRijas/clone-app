@@ -351,15 +351,22 @@
         },
         initEditor: function (options) {
             //basic validation - Server side sanitization is present
-            function basicSanitize(html) {
-  return html
-    // Remove <script> tags and their content
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
-            }
+         function safeSanitize(html) {
+  // Remove <script>, <style>, <link> tags and their content safely (case-insensitive)
+  // Matches opening tag with optional attributes + any content non-greedily + closing tag
+  const blockedTags = ['script', 'style', 'link'];
+
+  blockedTags.forEach(tag => {
+    const regex = new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi');
+    html = html.replace(regex, '');
+  });
+
+  return html;
+}
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
             edit.open();
-            edit.write(basicSanitize(this.textarea.val()));
+            edit.write(safeSanitize(this.textarea.val()));
             edit.close();
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
