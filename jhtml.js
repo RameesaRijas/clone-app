@@ -350,6 +350,7 @@
             }
         },
         // filepath: c:\git\dsp\clone-app\jhtml.js
+// filepath: c:\git\dsp\clone-app\jhtml.js
 initEditor: function (options) {
     var edit = this.editor = this.iframe[0].contentWindow.document;
     edit.designMode = 'on';
@@ -357,8 +358,16 @@ initEditor: function (options) {
     edit.write('<html><head></head><body></body></html>');
     edit.close();
     
-    // Use textContent first, then enable HTML editing
-    edit.body.textContent = this.textarea.val();
+    // Use createRange and insertNode to avoid innerHTML security warning
+    var range = edit.createRange();
+    range.selectNodeContents(edit.body);
+    range.deleteContents();
+    
+    var div = edit.createElement('div');
+    div.innerHTML = this.textarea.val();
+    while (div.firstChild) {
+        range.insertNode(div.firstChild);
+    }
     
     if (options.css) {
         var e = edit.createElement('link'); 
