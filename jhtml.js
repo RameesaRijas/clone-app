@@ -350,13 +350,33 @@
             }
         },
         // filepath: c:\git\dsp\clone-app\jhtml.js
-// filepath: c:\git\dsp\clone-app\jhtml.js
+// filepath: c:\git\dsp\clone-app\jhtml.js    
+sanitizeHtml: function(html) {
+        if (!html) return '';
+        
+        // Remove script tags and their content
+        html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+        
+        // Remove dangerous event handlers (onclick, onload, etc.)
+        html = html.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '');
+        html = html.replace(/\s*on\w+\s*=\s*[^\s>]+/gi, '');
+        
+        // Remove javascript: URLs
+        html = html.replace(/javascript\s*:/gi, '');
+        
+        // Remove style tags (optional, comment out if you need styles)
+        // html = html.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+        
+        return html;
+    },
+    
+
  initEditor: function (options) {
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
             edit.open();
             // @lgtm [js/xss-through-dom] - Server side sanitization is present
-            edit.write(this.textarea.val());
+            edit.write(this.sanitizeHtml(this.textarea.val()));
             edit.close();
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
