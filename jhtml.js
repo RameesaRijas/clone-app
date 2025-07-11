@@ -354,7 +354,7 @@
             edit.designMode = 'on';
                 edit.open();
                 // CodeQL [safe]: trusted HTML from server sanitization
-                edit.write(this.textarea.val());
+               edit.write('<body>' + this.textarea.val() + '</body>');
                 edit.close();
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
