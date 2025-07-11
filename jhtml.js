@@ -365,9 +365,10 @@
     
     // Convert line breaks to <br> tags for proper formatting
     safeHtml = safeHtml.replace(/\n/g, '<br>');
+     var unescapedHtml = $('<div>').html(safeHtml).text();
     
     // Now safe to set innerHTML with escaped content
-    edit.body.innerHTML = safeHtml;
+    edit.body.innerHTML = unescapedHtml;
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
