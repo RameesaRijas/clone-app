@@ -1627,11 +1627,34 @@
         return this;
     };
 
-    // manage contextMenu instances
-    $.contextMenu = function (operation, options) {
-        if (typeof operation !== 'string') {
-            options = operation;
-            operation = 'create';
+function getSafeSelectorPattern() {
+  // Allows alphanumerics, dashes, underscores, colons, dots, hashes, brackets, quotes, spaces, and combinators
+  return /^[a-zA-Z0-9_\-#.:>\[\]="'"~|^$*+\s]+$/;
+}
+
+function safeElementSelector(selectorOrElement) {
+  if (typeof selectorOrElement === "string") {
+    const safeSelectorPattern = getSafeSelectorPattern();
+    if (safeSelectorPattern.test(selectorOrElement)) {
+      return $(document).find(selectorOrElement);
+    }
+    console.warn("Blocked unsafe selector:", selectorOrElement);
+    return $();
+  } else if (
+    selectorOrElement instanceof Element ||
+    selectorOrElement instanceof jQuery
+  ) {
+    return $(selectorOrElement);
+  }
+  console.warn("Invalid selector input:", selectorOrElement);
+  return $();
+}
+
+// manage contextMenu instances
+$.contextMenu = function (operation, options) {
+    if (typeof operation !== 'string') {
+        options = operation;
+        operation = 'create';
         }
 
         if (typeof options === 'string') {
