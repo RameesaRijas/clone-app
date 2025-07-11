@@ -1657,11 +1657,12 @@
               $context = $(document);
             }
             o.context = $context.get(0);
-            if (!(o.context instanceof Element || o.context === document)) {
-                console.warn("Blocked unsafe context", o.context);
-                o.context = document;
+            if ((o.context instanceof Element || o.context === document)) {
+                _hasContext = !$(o.context).is(document);
+            } else {
+                _hasContext = document;
             }
-            _hasContext = !$(o.context).is(document);
+            
         }
 
         switch (operation) {
