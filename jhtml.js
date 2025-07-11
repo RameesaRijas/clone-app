@@ -350,11 +350,17 @@
             }
         },
         initEditor: function (options) {
+           function htmlSanitize(html) {
+    // Basic HTML sanitization - remove script tags and dangerous attributes
+    return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+              .replace(/on\w+="[^"]*"/gi, '')
+              .replace(/javascript:/gi, '');
+}
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
                 edit.open();
-                // CodeQL [safe]: trusted HTML from server sanitization
-               edit.write('<body>' + this.textarea.val() + '</body>');
+               var sanitizedContent = htmlSanitize(this.textarea.val());
+    edit.write('<body>' + sanitizedContent + '</body>');
                 edit.close();
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
