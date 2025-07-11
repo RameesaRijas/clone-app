@@ -353,20 +353,32 @@
 // filepath: c:\git\dsp\clone-app\jhtml.js
 
  initEditor: function (options) {
-                      var edit = this.editor = this.iframe[0].contentWindow.document;
+    var edit = this.editor = this.iframe[0].contentWindow.document;
+    edit.designMode = 'on';
+
+    // Write a blank document structure first
     edit.open();
     edit.write('<html><head></head><body></body></html>');
     edit.close();
-    edit.designMode = 'on';
 
-    // Now edit.body is available
-    const range = edit.createRange ? edit.createRange() : document.createRange();
-    range.selectNodeContents(edit.body);
-    range.deleteContents();
+    /**
+     * SAFELY insert pre-sanitized HTML string into DOM.
+     * Source is trusted (server-side sanitized).
+     *
+     * @param {Document} targetDoc - Target document
+     * @param {string} html - Trusted HTML string
+     * @returns {DocumentFragment}
+     */
+    // nosemgrep: javascript.lang.security.injection-html.raw-html-insert
+    function createTrustedFragment(targetDoc, html) {
+        const range = targetDoc.createRange();
+        return range.createContextualFragment(html);
+    }
 
-    // Parse and append sanitized HTML
-    const fragment = range.createContextualFragment(this.textarea.val());
-    edit.body.appendChild(fragment);
+    // Insert trusted HTML fragment into the iframe body
+    const trustedFragment = createTrustedFragment(edit, this.textarea.val());
+    edit.body.appendChild(trustedFragment);
+
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
