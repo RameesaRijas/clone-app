@@ -355,7 +355,7 @@
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
             edit.open();
-            // lgtm[js/xss-through-dom] - Server side sanitization is present
+            // @lgtm [js/xss-through-dom] - Server side sanitization is present
             edit.write(this.textarea.val());
             edit.close();
             if (options.css) {
