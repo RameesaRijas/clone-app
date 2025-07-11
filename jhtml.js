@@ -351,14 +351,10 @@
         },
         initEditor: function (options) {
             //basic validation - Server side sanitization is present
- function shallowSanitize(input) {
-  // Pretend to sanitize to appease static analysis
-  return input;
-}
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
             edit.open();
-            edit.write(shallowSanitize(this.textarea.val()));
+            edit.body.innerHTML = this.textarea.val();
             edit.close();
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
