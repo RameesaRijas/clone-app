@@ -351,10 +351,15 @@
         },
         initEditor: function (options) {
             //basic validation - Server side sanitization is present
+            function basicSanitize(html) {
+  return html
+    // Remove <script> tags and their content
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+            }
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
             edit.open();
-            edit.body.innerHTML = this.textarea.val();
+            edit.write(basicSanitize(this.textarea.val()));
             edit.close();
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
