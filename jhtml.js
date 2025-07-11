@@ -356,12 +356,18 @@
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
             edit.open();
-                          var html = this.textarea.val();
-    var template = document.createElement('template');
-    template.innerHTML = html; // Browser sanitizes the HTML here
-    edit.write(template.innerHTML);
-
-            edit.close();
+    edit.write('<html><head></head><body></body></html>');
+    edit.close();
+    
+    // Safe approach: Use jQuery to escape HTML then convert back
+    var content = this.textarea.val();
+    var safeHtml = $('<div>').text(content).html();
+    
+    // Convert line breaks to <br> tags for proper formatting
+    safeHtml = safeHtml.replace(/\n/g, '<br>');
+    
+    // Now safe to set innerHTML with escaped content
+    edit.body.innerHTML = safeHtml;
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
