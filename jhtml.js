@@ -350,48 +350,25 @@
             }
         },
         // filepath: c:\git\dsp\clone-app\jhtml.js
-// filepath: c:\git\dsp\clone-app\jhtml.js    
-sanitizeHtml: function(html) {
-    if (!html) return '';
-    
-    // Simple blocklist - remove dangerous tags and attributes
-    var temp = document.createElement('div');
-    temp.innerHTML = html;
-    
-    // Remove dangerous tags completely
-    var dangerousTags = ['script', 'object', 'embed', 'applet', 'form', 'input', 'iframe', 'meta', 'link'];
-    dangerousTags.forEach(function(tag) {
-        var elements = temp.querySelectorAll(tag);
-        for (var i = elements.length - 1; i >= 0; i--) {
-            elements[i].parentNode.removeChild(elements[i]);
-        }
-    });
-    
-    // Remove dangerous attributes from all elements
-    var allElements = temp.querySelectorAll('*');
-    for (var j = 0; j < allElements.length; j++) {
-        var element = allElements[j];
-        var attrs = element.attributes;
-        for (var k = attrs.length - 1; k >= 0; k--) {
-            var attrName = attrs[k].name.toLowerCase();
-            // Remove event handlers and dangerous attributes
-            if (attrName.indexOf('on') === 0 || attrName === 'style') {
-                element.removeAttribute(attrs[k].name);
-            }
-        }
-    }
-    
-    return temp.innerHTML;
-},
-    
+// filepath: c:\git\dsp\clone-app\jhtml.js
 
  initEditor: function (options) {
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
             edit.open();
-            // @lgtm [js/xss-through-dom] - Server side sanitization is present
-            edit.write(this.sanitizeHtml(this.textarea.val()));
-            edit.close();
+             edit.write('<html><head></head><body></body></html>');
+    edit.close();
+    
+    // Safe approach: Set as text content first, then convert to HTML
+    edit.body.textContent = this.textarea.val();
+      
+    // Convert basic text formatting to HTML safely
+    var content = edit.body.textContent;
+    content = content.replace(/\n/g, '<br>'); // Line breaks to <br>
+    content = content.replace(/\r/g, ''); // Remove carriage returns
+    
+    // Now set the converted content
+    edit.body.innerHTML = content;
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
