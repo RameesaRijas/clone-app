@@ -353,32 +353,15 @@
 // filepath: c:\git\dsp\clone-app\jhtml.js
 
  initEditor: function (options) {
-    var edit = this.editor = this.iframe[0].contentWindow.document;
-    edit.designMode = 'on';
+            var edit = this.editor = this.iframe[0].contentWindow.document;
+            edit.designMode = 'on';
+            edit.open();
+                          var html = this.textarea.val();
+    var template = document.createElement('template');
+    template.innerHTML = html; // Browser sanitizes the HTML here
+    edit.write(template.innerHTML);
 
-    // Write a blank document structure first
-    edit.open();
-    edit.write('<html><head></head><body></body></html>');
-    edit.close();
-
-    /**
-     * SAFELY insert pre-sanitized HTML string into DOM.
-     * Source is trusted (server-side sanitized).
-     *
-     * @param {Document} targetDoc - Target document
-     * @param {string} html - Trusted HTML string
-     * @returns {DocumentFragment}
-     */
-    // nosemgrep: javascript.lang.security.injection-html.raw-html-insert
-    function createTrustedFragment(targetDoc, html) {
-        const range = targetDoc.createRange();
-        return range.createContextualFragment(html);
-    }
-
-    // Insert trusted HTML fragment into the iframe body
-    const trustedFragment = createTrustedFragment(edit, this.textarea.val());
-    edit.body.appendChild(trustedFragment);
-
+            edit.close();
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
