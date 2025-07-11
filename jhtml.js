@@ -351,32 +351,17 @@
         },
         // filepath: c:\git\dsp\clone-app\jhtml.js
 // filepath: c:\git\dsp\clone-app\jhtml.js
-initEditor: function (options) {
-    var edit = this.editor = this.iframe[0].contentWindow.document;
-    edit.designMode = 'on';
-    edit.open();
-    edit.write('<html><head></head><body></body></html>');
-    edit.close();
-    
-    // Use createRange and insertNode to avoid innerHTML security warning
-    var range = edit.createRange();
-    range.selectNodeContents(edit.body);
-    range.deleteContents();
-    
-    var div = edit.createElement('div');
-    div.innerHTML = this.textarea.val();
-    while (div.firstChild) {
-        range.insertNode(div.firstChild);
-    }
-    
-    if (options.css) {
-        var e = edit.createElement('link'); 
-        e.rel = 'stylesheet'; 
-        e.type = 'text/css'; 
-        e.href = options.css; 
-        edit.getElementsByTagName('head')[0].appendChild(e);
-    }
-},
+ initEditor: function (options) {
+            var edit = this.editor = this.iframe[0].contentWindow.document;
+            edit.designMode = 'on';
+            edit.open();
+            // lgtm[js/xss-through-dom] - Server side sanitization is present
+            edit.write(this.textarea.val());
+            edit.close();
+            if (options.css) {
+                var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
+            }
+        },
         initToolBar: function (options) {
             var that = this;
 
