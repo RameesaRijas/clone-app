@@ -352,23 +352,37 @@
         // filepath: c:\git\dsp\clone-app\jhtml.js
 // filepath: c:\git\dsp\clone-app\jhtml.js    
 sanitizeHtml: function(html) {
-        if (!html) return '';
-        
-        // Remove script tags and their content
-        html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-        
-        // Remove dangerous event handlers (onclick, onload, etc.)
-        html = html.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '');
-        html = html.replace(/\s*on\w+\s*=\s*[^\s>]+/gi, '');
-        
-        // Remove javascript: URLs
-        html = html.replace(/javascript\s*:/gi, '');
-        
-        // Remove style tags (optional, comment out if you need styles)
-        // html = html.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
-        
-        return html;
-    },
+    if (!html) return '';
+    
+    // Simple blocklist - remove dangerous tags and attributes
+    var temp = document.createElement('div');
+    temp.innerHTML = html;
+    
+    // Remove dangerous tags completely
+    var dangerousTags = ['script', 'object', 'embed', 'applet', 'form', 'input', 'iframe', 'meta', 'link'];
+    dangerousTags.forEach(function(tag) {
+        var elements = temp.querySelectorAll(tag);
+        for (var i = elements.length - 1; i >= 0; i--) {
+            elements[i].parentNode.removeChild(elements[i]);
+        }
+    });
+    
+    // Remove dangerous attributes from all elements
+    var allElements = temp.querySelectorAll('*');
+    for (var j = 0; j < allElements.length; j++) {
+        var element = allElements[j];
+        var attrs = element.attributes;
+        for (var k = attrs.length - 1; k >= 0; k--) {
+            var attrName = attrs[k].name.toLowerCase();
+            // Remove event handlers and dangerous attributes
+            if (attrName.indexOf('on') === 0 || attrName === 'style') {
+                element.removeAttribute(attrs[k].name);
+            }
+        }
+    }
+    
+    return temp.innerHTML;
+},
     
 
  initEditor: function (options) {
