@@ -349,18 +349,25 @@
                 this.toggleHTMLView();
             }
         },
-        initEditor: function (options) {
-            var edit = this.editor = this.iframe[0].contentWindow.document;
-            edit.designMode = 'on';
-                edit.open();
-                /// CodeQL [js/xss-through-dom]: Content from textarea is trusted user input in editor context
-                edit.write(this.textarea.val());
-                edit.close();
-
-            if (options.css) {
-                var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
-            }
-        },
+        // filepath: c:\git\dsp\clone-app\jhtml.js
+initEditor: function (options) {
+    var edit = this.editor = this.iframe[0].contentWindow.document;
+    edit.designMode = 'on';
+    edit.open();
+    edit.write('<html><head></head><body></body></html>');
+    edit.close();
+    
+    // Use textContent first, then enable HTML editing
+    edit.body.textContent = this.textarea.val();
+    
+    if (options.css) {
+        var e = edit.createElement('link'); 
+        e.rel = 'stylesheet'; 
+        e.type = 'text/css'; 
+        e.href = options.css; 
+        edit.getElementsByTagName('head')[0].appendChild(e);
+    }
+},
         initToolBar: function (options) {
             var that = this;
 
