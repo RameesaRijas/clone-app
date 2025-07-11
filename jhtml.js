@@ -351,12 +351,13 @@
         },
         initEditor: function (options) {
             //basic validation - Server side sanitization is present
-            const blocked = /<\/?(script|iframe|object|embed|meta|base)[\s>]/i;
+             const blocked = /<\/?(script|iframe|object|embed|meta|base)[\s>]/i;
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
+            const html = this.textarea.val() || this.textarea.html() || "<p id='placeholder'>Type here...</p>";
             if (!blocked.test(html)) {
                 edit.open();
-                edit.write(this.textarea.val());
+                edit.write(html);
                 edit.close();
             }
             if (options.css) {
