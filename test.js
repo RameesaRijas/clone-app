@@ -1811,7 +1811,7 @@ $.contextMenu = function (operation, options) {
                                 o.selector instanceof Element ||
                                 o.selector instanceof jQuery
                             ) {
-                                if (!$(context).is(o.selector)) {
+                                if (!$(safeElementSelector(context)).is(o.selector)) {
                                     return true;
                                 }
                             } else {
