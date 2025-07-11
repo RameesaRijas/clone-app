@@ -353,22 +353,20 @@
 // filepath: c:\git\dsp\clone-app\jhtml.js
 
  initEditor: function (options) {
-            var edit = this.editor = this.iframe[0].contentWindow.document;
-            edit.designMode = 'on';
-            edit.open();
-             edit.write('<html><head></head><body></body></html>');
+                      var edit = this.editor = this.iframe[0].contentWindow.document;
+    edit.open();
+    edit.write('<html><head></head><body></body></html>');
     edit.close();
-    
-    // Safe approach: Set as text content first, then convert to HTML
-    edit.body.textContent = this.textarea.val();
-      
-    // Convert basic text formatting to HTML safely
-    var content = edit.body.textContent;
-    content = content.replace(/\n/g, '<br>'); // Line breaks to <br>
-    content = content.replace(/\r/g, ''); // Remove carriage returns
-    
-    // Now set the converted content
-    edit.body.innerHTML = content;
+    edit.designMode = 'on';
+
+    // Now edit.body is available
+    const range = edit.createRange ? edit.createRange() : document.createRange();
+    range.selectNodeContents(edit.body);
+    range.deleteContents();
+
+    // Parse and append sanitized HTML
+    const fragment = range.createContextualFragment(this.textarea.val());
+    edit.body.appendChild(fragment);
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
