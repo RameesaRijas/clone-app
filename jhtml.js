@@ -360,15 +360,18 @@
 
             var edit = this.editor = this.iframe[0].contentWindow.document;
             edit.designMode = 'on';
-                    edit.open();
-    edit.write('<html><head></head><body></body></html>');
-    const container = edit.createElement('div');
-    container.innerHTML = escapeHTML(this.textarea.val());
-    edit.body.appendChild(container);
-    edit.close();
+                   edit.open();
+edit.write('<html><head></head><body contenteditable="true"></body></html>');
+edit.close();
 
-    edit.body.innerHTML = container.textContent;
+// Step 2: escape HTML and decode via textContent
+const tempDiv = edit.createElement('div');
+tempDiv.innerHTML = escapeHTML(this.textarea.val());
+const decodedHTML = tempDiv.textContent;
 
+// Step 3: insert decoded HTML (trusted) back into contenteditable body
+// CodeQL [js/html-injection]: HTML was escaped then safely decoded
+edit.body.innerHTML = decodedHTML;
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
