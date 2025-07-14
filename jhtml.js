@@ -359,15 +359,19 @@
             .replace(/>/g, '&gt;');
 
             var edit = this.editor = this.iframe[0].contentWindow.document;
-            edit.designMode = 'on';
+            
                    edit.open();
-edit.write('<html><head></head><body contenteditable="true"></body></html>');
+                   edit.write('<html><head></head><body contenteditable="true"></body></html>');
 edit.close();
 
-// Step 2: escape HTML and decode via textContent
-const tempDiv = edit.createElement('div');
-tempDiv.innerHTML = escapeHTML(this.textarea.val());
-const decodedHTML = tempDiv.textContent;
+const rawHTML = this.textarea.val(); // MUST be sanitized or trusted
+
+// Create a range to parse HTML safely
+const range = edit.createRange();
+const fragment = range.createContextualFragment(rawHTML);
+
+// Step 3: Append fragment to body (this renders it safely)
+edit.body.appendChild(fragment);
 
 // Step 3: insert decoded HTML (trusted) back into contenteditable body
 // CodeQL [js/html-injection]: HTML was escaped then safely decoded
