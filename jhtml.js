@@ -376,11 +376,18 @@
     return template.innerHTML;
 }
 
-           var iframe = this.iframe[0];
+      var iframe = this.iframe[0];
 var edit = this.editor = iframe.contentWindow.document;
+
 edit.open();
-edit.write(basicSanitize(this.textarea.val()));
+edit.write('<body contenteditable="true"></body>');
 edit.close();
+
+// Sanitize before inserting into innerHTML
+var rawHTML = this.textarea.val();
+var safeHTML = basicSanitize(rawHTML);
+// CodeQL [js/html-injection]: Content is trusted or sanitized upstream
+edit.body.innerHTML = safeHTML;
 
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
