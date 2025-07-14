@@ -353,52 +353,21 @@
 // filepath: c:\git\dsp\clone-app\jhtml.js
 
  initEditor: function (options) {
-    function sanitizeHTML(dirtyHTML) {
-    // Use DOMParser instead of innerHTML assignment
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(dirtyHTML, 'text/html');
+              const escapeHTML = (html) =>
+        html.replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
 
-    const blockedTags = ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'style'];
-    const allowedAttributes = ['href', 'src', 'alt', 'title', 'class', 'id', 'style']; // Add more if needed
+            var edit = this.editor = this.iframe[0].contentWindow.document;
+            edit.designMode = 'on';
+                    edit.open();
+    edit.write('<html><head></head><body></body></html>');
+    const container = edit.createElement('div');
+    container.innerHTML = escapeHTML(this.textarea.val());
+    edit.body.appendChild(container);
+    edit.close();
 
-    const walk = (node) => {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-            // Remove blocked tags
-            if (blockedTags.includes(node.tagName.toLowerCase())) {
-                node.remove();
-                return;
-            }
-
-            // Remove unsafe attributes
-            [...node.attributes].forEach(attr => {
-                const attrName = attr.name.toLowerCase();
-                if (attrName.startsWith('on') || (!allowedAttributes.includes(attrName) && !attrName.startsWith('data-'))) {
-                    node.removeAttribute(attr.name);
-                }
-            });
-        }
-
-        node.childNodes.forEach(walk);
-    };
-
-    walk(doc.body);
-
-    return doc.body.innerHTML;
-}
-
-
-      var iframe = this.iframe[0];
-var edit = this.editor = iframe.contentWindow.document;
-
-edit.open();
-edit.write('<body contenteditable="true"></body>');
-edit.close();
-
-// Sanitize before inserting into innerHTML
-var rawHTML = this.textarea.val();
-var safeHTML = sanitizeHTML(rawHTML);
-// CodeQL [js/html-injection]: Content is trusted or sanitized upstream
-edit.body.innerHTML = safeHTML;
+    edit.body.innerHTML = container.textContent;
 
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
