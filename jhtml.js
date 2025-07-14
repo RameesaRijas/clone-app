@@ -353,10 +353,33 @@
 // filepath: c:\git\dsp\clone-app\jhtml.js
 
  initEditor: function (options) {
+    function basicSanitize(html) {
+    var template = document.createElement('template');
+    template.innerHTML = html;
+
+    // Remove <script>, <iframe>, <object>, <embed>, etc.
+    const blockedTags = ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'style'];
+    blockedTags.forEach(tag => {
+        const elements = template.content.querySelectorAll(tag);
+        elements.forEach(el => el.remove());
+    });
+
+    // Remove inline event handlers (e.g., onclick, onload)
+    template.content.querySelectorAll('*').forEach(el => {
+        for (const attr of Array.from(el.attributes)) {
+            if (attr.name.startsWith('on')) {
+                el.removeAttribute(attr.name);
+            }
+        }
+    });
+
+    return template.innerHTML;
+}
+
            var iframe = this.iframe[0];
 var edit = this.editor = iframe.contentWindow.document;
 edit.open();
-edit.write('<body contenteditable="true">' + this.textarea.val() + '</body>');
+edit.write(basicSanitize(this.textarea.val()));
 edit.close();
 
             if (options.css) {
