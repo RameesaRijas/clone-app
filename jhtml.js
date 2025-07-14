@@ -372,10 +372,6 @@ const fragment = range.createContextualFragment(rawHTML);
 
 // Step 3: Append fragment to body (this renders it safely)
 edit.body.appendChild(fragment);
-
-// Step 3: insert decoded HTML (trusted) back into contenteditable body
-// CodeQL [js/html-injection]: HTML was escaped then safely decoded
-edit.body.innerHTML = decodedHTML;
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
