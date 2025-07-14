@@ -364,14 +364,7 @@
                    edit.write('<html><head></head><body contenteditable="true"></body></html>');
 edit.close();
 
-const rawHTML = this.textarea.val(); // MUST be sanitized or trusted
-
-// Create a range to parse HTML safely
-const range = edit.createRange();
-const fragment = range.createContextualFragment(rawHTML);
-
-// Step 3: Append fragment to body (this renders it safely)
-edit.body.appendChild(fragment);
+edit.body.innerHTML = this.textarea.val();
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
