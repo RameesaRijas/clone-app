@@ -353,22 +353,12 @@
 // filepath: c:\git\dsp\clone-app\jhtml.js
 
  initEditor: function (options) {
-            var edit = this.editor = this.iframe[0].contentWindow.document;
-            edit.designMode = 'on';
-            edit.open();
-    edit.write('<html><head></head><body></body></html>');
-    edit.close();
-    
-    // Safe approach: Use jQuery to escape HTML then convert back
-    var content = this.textarea.val();
-    var safeHtml = $('<div>').text(content).html();
-    
-    // Convert line breaks to <br> tags for proper formatting
-    safeHtml = safeHtml.replace(/\n/g, '<br>');
-     var unescapedHtml = $('<div>').html(safeHtml).text();
-    
-    // Now safe to set innerHTML with escaped content
-    edit.body.innerHTML = unescapedHtml;
+           var iframe = this.iframe[0];
+var edit = this.editor = iframe.contentWindow.document;
+edit.open();
+edit.write('<body contenteditable="true">' + this.textarea.val() + '</body>');
+edit.close();
+
             if (options.css) {
                 var e = edit.createElement('link'); e.rel = 'stylesheet'; e.type = 'text/css'; e.href = options.css; edit.getElementsByTagName('head')[0].appendChild(e);
             }
