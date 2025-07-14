@@ -353,28 +353,39 @@
 // filepath: c:\git\dsp\clone-app\jhtml.js
 
  initEditor: function (options) {
-    function basicSanitize(html) {
-    var template = document.createElement('template');
-    template.innerHTML = html;
+    function sanitizeHTML(dirtyHTML) {
+    // Use DOMParser instead of innerHTML assignment
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(dirtyHTML, 'text/html');
 
-    // Remove <script>, <iframe>, <object>, <embed>, etc.
     const blockedTags = ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'style'];
-    blockedTags.forEach(tag => {
-        const elements = template.content.querySelectorAll(tag);
-        elements.forEach(el => el.remove());
-    });
+    const allowedAttributes = ['href', 'src', 'alt', 'title', 'class', 'id', 'style']; // Add more if needed
 
-    // Remove inline event handlers (e.g., onclick, onload)
-    template.content.querySelectorAll('*').forEach(el => {
-        for (const attr of Array.from(el.attributes)) {
-            if (attr.name.startsWith('on')) {
-                el.removeAttribute(attr.name);
+    const walk = (node) => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            // Remove blocked tags
+            if (blockedTags.includes(node.tagName.toLowerCase())) {
+                node.remove();
+                return;
             }
-        }
-    });
 
-    return template.innerHTML;
+            // Remove unsafe attributes
+            [...node.attributes].forEach(attr => {
+                const attrName = attr.name.toLowerCase();
+                if (attrName.startsWith('on') || (!allowedAttributes.includes(attrName) && !attrName.startsWith('data-'))) {
+                    node.removeAttribute(attr.name);
+                }
+            });
+        }
+
+        node.childNodes.forEach(walk);
+    };
+
+    walk(doc.body);
+
+    return doc.body.innerHTML;
 }
+
 
       var iframe = this.iframe[0];
 var edit = this.editor = iframe.contentWindow.document;
@@ -385,7 +396,7 @@ edit.close();
 
 // Sanitize before inserting into innerHTML
 var rawHTML = this.textarea.val();
-var safeHTML = basicSanitize(rawHTML);
+var safeHTML = sanitizeHTML(rawHTML);
 // CodeQL [js/html-injection]: Content is trusted or sanitized upstream
 edit.body.innerHTML = safeHTML;
 
